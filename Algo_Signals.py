@@ -2,10 +2,16 @@ import os
 import urllib.request
 from cryptography.fernet import Fernet
 import pandas
+# Clients get this, they have to configure the path
 json_file_pathname='<enter your filepath to json files here>'
 jsonkey_file_pathname='<enter your filepath to encryption key here>'
+
+# This is IC's settings, not to be shared
+# json_file_pathname="C:\\Users\\...\\Testing\\"
+# jsonkey_file_pathname="C:\\Users\\...\\Testing\\"
+
 HEADERS = {'User-Agent': 'Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148'}
-jsonlist=['cme_trident_daily_signal_menu.json','etf_trident_daily_signal_menu.json']
+jsonlist=['cme_trident_daily_signal_menu.json','etf_trident_daily_signal_menu.json','TRIDENT_TLTD_NEW_SIGNALS.json','TRIDENT_TLTD_DAILY_DECISIONS.json','TRIDENT_TLTD_RGL.json','TRIDENT_TLTD_URGL.json']
 # READ Encrypted json
 def url_get_contents(url):
     req = urllib.request.Request(url=url, headers=HEADERS)
@@ -31,11 +37,18 @@ except:
 	print('Files are already unlocked')
 
 # READ into dataframe
-df=pandas.DataFrame()
-for fn in jsonlist:
-    df=pandas.concat([df,pandas.read_json(json_file_pathname+fn,orient='table')])
 
-print(df.shape)
+api_trident_signal_menu=pandas.DataFrame()
+for fn in ['cme_trident_daily_signal_menu.json','etf_trident_daily_signal_menu.json',]:
+    api_trident_signal_menu=pandas.concat([api_trident_signal_menu,pandas.read_json(json_file_pathname+fn,orient='table')])
+
+api_trident_tltd_new_signals=pandas.read_json(json_file_pathname+'TRIDENT_TLTD_NEW_SIGNALS'+'.json',orient='table')
+api_trident_tltd_daily_decisions=pandas.read_json(json_file_pathname+'TRIDENT_TLTD_DAILY_DECISIONS'+'.json',orient='table')
+api_trident_tltd_rgl=pandas.read_json(json_file_pathname+'TRIDENT_TLTD_RGL'+'.json',orient='table')
+api_trident_tltd_urgl=pandas.read_json(json_file_pathname+'TRIDENT_TLTD_URGL'+'.json',orient='table')
+
+print(api_trident_signal_menu.shape,api_trident_tltd_new_signals.shape,api_trident_tltd_daily_decisions.shape,api_trident_tltd_rgl.shape,api_trident_tltd_urgl.shape,)
+
 
 # Optional but recommended
 # CIPHER
@@ -51,7 +64,7 @@ for fn in jsonlist:
 print('Locked')
 
 # REMOVE
-for file in jsonlist:
+for fn in jsonlist:
     try:
         os.remove(json_file_pathname+fn,)
     except:
